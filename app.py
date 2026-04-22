@@ -836,5 +836,8 @@ def review():
 if __name__ == '__main__':
     if not GROQ_API_KEY:
         print("\n⚠️  GROQ_API_KEY not set!\n")
-    print("🚀 FlashGenius → http://localhost:5050\n")
-    app.run(debug=True, port=5050, threaded=True)
+
+    port = int(os.environ.get("PORT", 10000))
+    print(f"🚀 FlashGenius running on port {port}\n")
+
+    app.run(host='0.0.0.0', port=port, threaded=True)
