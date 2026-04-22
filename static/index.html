@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlashGenius</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky:#e8f4fd; --sky-mid:#cce7f8; --sky-deep:#a8d4f0;
+  --blue:#5ba4cf; --blue-dk:#3a7fbf; --blue-ink:#1e4d78;
+  --accent:#f0a04b; --green:#7ec8a0;
+  --glass:rgba(255,255,255,0.76); --shadow:0 8px 32px rgba(58,127,191,0.13);
+  --r:18px; --font:'Sora',sans-serif; --serif:'DM Serif Display',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:linear-gradient(145deg,#d6eeff 0%,#eaf6ff 45%,#f5fbff 75%,#dff0fb 100%);min-height:100vh;color:var(--blue-ink);overflow-x:hidden}
+.blob{position:fixed;border-radius:50%;filter:blur(70px);opacity:.4;pointer-events:none;animation:drift 13s ease-in-out infinite alternate}
+.b1{width:400px;height:400px;background:#b3d9f7;top:-100px;left:-80px}
+.b2{width:280px;height:280px;background:#cde8fd;bottom:-70px;right:-50px;animation-delay:-5s}
+.b3{width:180px;height:180px;background:#fde8c0;top:55%;left:62%;animation-delay:-9s}
+@keyframes drift{to{transform:translate(18px,16px) scale(1.04)}}
+
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:40px 22px 80px}
+
+/* Header */
+header{text-align:center;margin-bottom:44px;animation:up .6s ease both}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--glass);border:1.5px solid var(--sky-deep);padding:7px 18px;border-radius:100px;font-size:.78rem;font-weight:600;color:var(--blue-dk);backdrop-filter:blur(10px);margin-bottom:18px;box-shadow:var(--shadow)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+h1{font-family:var(--serif);font-size:clamp(2rem,5vw,3rem);line-height:1.15;color:var(--blue-ink);margin-bottom:10px}
+h1 em{font-style:italic;color:var(--blue)}
+.sub{font-size:.95rem;color:#5a7fa0;max-width:480px;margin:0 auto;line-height:1.65}
+
+/* Panel */
+.panel{background:var(--glass);border:1.5px solid rgba(255,255,255,.88);border-radius:var(--r);backdrop-filter:blur(16px);box-shadow:var(--shadow);padding:28px 30px;margin-bottom:18px;animation:up .55s ease both}
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.ptitle{display:flex;align-items:center;gap:10px;font-size:.75rem;font-weight:700;color:var(--blue-dk);margin-bottom:20px;letter-spacing:.05em;text-transform:uppercase}
+.badge{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-dk));color:#fff;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(91,164,207,.4)}
+
+/* Drop zone */
+.drop{border:2px dashed var(--sky-deep);border-radius:12px;padding:44px 28px;text-align:center;cursor:pointer;transition:all .22s;background:rgba(232,244,253,.5)}
+.drop:hover,.drop.over{border-color:var(--blue);background:rgba(200,232,253,.45);transform:scale(1.008)}
+.di{width:64px;height:64px;background:linear-gradient(135deg,var(--sky-deep),var(--blue));border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 6px 20px rgba(91,164,207,.35);transition:transform .22s}
+.drop:hover .di{transform:translateY(-4px)}
+.di svg{width:30px;height:30px;fill:#fff}
+.dlabel{font-size:1rem;font-weight:600;color:var(--blue-dk);margin-bottom:5px}
+.dsub{font-size:.82rem;color:#7da0bf}
+.dsub span{color:var(--blue);font-weight:600;cursor:pointer;text-decoration:underline}
+#fi{display:none}
+
+/* Loading */
+.loading{display:none;text-align:center;padding:22px}
+.loading.on{display:block}
+.ring{width:38px;height:38px;border:3px solid var(--sky-mid);border-top-color:var(--blue);border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lmsg{font-weight:600;font-size:.88rem;color:var(--blue-dk)}
+.lsub{font-size:.74rem;color:#9ab7cc;margin-top:3px}
+
+/* File preview */
+.fprev{display:none;align-items:center;gap:12px;background:rgba(126,200,160,.1);border:1.5px solid rgba(126,200,160,.38);border-radius:11px;padding:12px 16px;margin-top:12px}
+.fprev.on{display:flex}
+.ficon{width:40px;height:40px;border-radius:9px;background:linear-gradient(135deg,var(--green),#59b585);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.finfo{flex:1;min-width:0}
+.fname{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fmeta{font-size:.74rem;color:#7da0bf;margin-top:2px}
+.fremove{background:none;border:none;cursor:pointer;color:#a0b8c8;font-size:16px;padding:4px 8px;border-radius:6px;transition:color .18s}
+.fremove:hover{color:#e06060}
+
+/* Section list */
+#sec-panel{display:none}
+.stoolbar{display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap}
+.ssearch{flex:1;min-width:140px;padding:8px 12px;border-radius:9px;border:1.5px solid var(--sky-deep);font-family:var(--font);font-size:.84rem;background:rgba(255,255,255,.7);color:var(--blue-ink);outline:none}
+.ssearch:focus{border-color:var(--blue)}
+.sa-btn{background:none;border:1.5px solid var(--sky-deep);border-radius:7px;padding:6px 12px;font-family:var(--font);font-size:.74rem;cursor:pointer;color:var(--blue);font-weight:600;transition:all .18s;white-space:nowrap}
+.sa-btn:hover{background:var(--sky-mid)}
+.scount{font-size:.74rem;color:#9ab7cc;white-space:nowrap}
+
+.slist{display:flex;flex-direction:column;gap:5px;max-height:340px;overflow-y:auto;padding-right:3px}
+.slist::-webkit-scrollbar{width:4px}
+.slist::-webkit-scrollbar-thumb{background:var(--sky-deep);border-radius:4px}
+
+.si{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:9px;border:1.5px solid var(--sky-deep);background:rgba(255,255,255,.6);cursor:pointer;transition:all .18s;color:var(--blue-dk)}
+.si:hover{border-color:var(--blue);background:rgba(200,232,253,.32)}
+.si.sel{border-color:var(--blue-dk);background:var(--blue-dk);color:#fff}
+.snum{font-size:.66rem;font-weight:700;opacity:.5;min-width:20px;text-align:right;flex-shrink:0}
+.si.sel .snum{opacity:.65}
+.slabel{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spg{font-size:.62rem;opacity:.4;flex-shrink:0}
+
+/* Level indents */
+.si[data-lv="1"]{font-size:.88rem;font-weight:700;padding-left:13px}
+.si[data-lv="2"]{font-size:.82rem;font-weight:600;padding-left:24px;border-left:3px solid rgba(91,164,207,.2)}
+.si[data-lv="3"]{font-size:.77rem;font-weight:500;padding-left:36px;border-left:3px solid rgba(91,164,207,.12)}
+.si[data-lv="4"]{font-size:.72rem;font-weight:400;padding-left:46px;border-left:3px solid rgba(91,164,207,.08)}
+
+/* Generate button */
+#gen-wrap{display:none}
+.gen-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:14px 28px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue-dk));color:#fff;font-family:var(--font);font-size:.95rem;font-weight:700;border:none;cursor:pointer;transition:all .22s;box-shadow:0 5px 20px rgba(58,127,191,.32)}
+.gen-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(58,127,191,.42)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.gen-btn.busy .sp{display:block}
+.gen-btn.busy .lbl{display:none}
+.sp{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+
+.pbar-wrap{display:none;margin-top:14px}
+.pbar-track{background:var(--sky-mid);border-radius:100px;height:5px;overflow:hidden}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--accent));border-radius:100px;transition:width .5s ease;width:0}
+.pbar-txt{font-size:.76rem;color:var(--blue);text-align:center;margin-top:7px}
+
+/* Toast */
+.toast{position:fixed;bottom:26px;right:26px;z-index:999;background:var(--blue-dk);color:#fff;padding:12px 18px;border-radius:11px;font-size:.83rem;font-weight:500;box-shadow:0 6px 20px rgba(30,77,120,.32);transform:translateY(50px);opacity:0;transition:all .28s;max-width:290px;pointer-events:none}
+.toast.on{transform:translateY(0);opacity:1}
+.toast.err{background:#c0392b}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<div class="wrap">
+  <header>
+    <div class="pill"><div class="dot"></div>Powered by Groq · LLaMA 3.3</div>
+    <h1>Learn <em>smarter</em> with<br>AI flashcards</h1>
+    <p class="sub">Upload any PDF — every section is extracted automatically. Pick the topics you want and generate flashcards instantly.</p>
+  </header>
+
+  <!-- Step 1: Upload -->
+  <div class="panel" style="animation-delay:.08s">
+    <div class="ptitle"><div class="badge">1</div>Upload Your PDF</div>
+    <div class="drop" id="drop">
+      <div class="di">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/><path d="M12 11v6M9 14l3-3 3 3"/></svg>
+      </div>
+      <div class="dlabel">Drop your PDF here</div>
+      <div class="dsub">or <span onclick="document.getElementById('fi').click()">browse files</span></div>
+    </div>
+    <input type="file" id="fi" accept=".pdf">
+
+    <div class="loading" id="loading">
+      <div class="ring"></div>
+      <div class="lmsg" id="lmsg">Analysing document…</div>
+      <div class="lsub">Detecting sections & font structure</div>
+    </div>
+
+    <div class="fprev" id="fprev">
+      <div class="ficon"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/></svg></div>
+      <div class="finfo">
+        <div class="fname" id="fname"></div>
+        <div class="fmeta" id="fmeta"></div>
+      </div>
+      <button class="fremove" onclick="resetFile()">✕</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Select sections -->
+  <div class="panel" id="sec-panel" style="animation-delay:.18s">
+    <div class="ptitle"><div class="badge">2</div>Select Topics to Generate <span style="font-size:.72rem;font-weight:400;text-transform:none;color:#9ab7cc;margin-left:4px">· in document order</span></div>
+    <div class="stoolbar">
+      <input class="ssearch" id="ssearch" placeholder="🔍 Search sections…" oninput="filterSections(this.value)">
+      <button class="sa-btn" id="sa-btn" onclick="toggleAll()">Select All</button>
+      <span class="scount" id="scount">None selected</span>
+    </div>
+    <div class="slist" id="slist"></div>
+  </div>
+
+  <!-- Generate -->
+  <div id="gen-wrap">
+    <button class="gen-btn" id="gen-btn" onclick="generate()">
+      <div class="sp"></div>
+      <span class="lbl">✨ Generate Flashcards</span>
+    </button>
+    <div class="pbar-wrap" id="pbar-wrap">
+      <div class="pbar-track"><div class="pbar-fill" id="pbar-fill"></div></div>
+      <div class="pbar-txt" id="pbar-txt"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:5050';
+let allSections  = [];   // string labels
+let allHeadings  = [];   // {text, level, page}
+let selected     = [];   // selected section labels
+
+// ── Drag & drop ──────────────────────────────────────────────────
+const drop = document.getElementById('drop');
+const fi   = document.getElementById('fi');
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer.files[0]; if(f) handle(f); });
+fi.addEventListener('change', () => { if(fi.files[0]) handle(fi.files[0]); });
+
+// ── Upload ───────────────────────────────────────────────────────
+const STEPS = ['Running font diagnostic…','Calibrating thresholds…','Extracting structure…','AI heading cleanup…','Building section map…'];
+
+async function handle(file) {
+  if (!file.name.toLowerCase().endsWith('.pdf')) { toast('Only PDF files supported.', true); return; }
+  // Reset UI
+  document.getElementById('fprev').classList.remove('on');
+  document.getElementById('sec-panel').style.display = 'none';
+  document.getElementById('gen-wrap').style.display  = 'none';
+
+  const load = document.getElementById('loading');
+  const lmsg = document.getElementById('lmsg');
+  load.classList.add('on');
+  let si = 0;
+  const st = setInterval(() => { if(si < STEPS.length) lmsg.textContent = STEPS[si++]; }, 1200);
+
+  const fd = new FormData(); fd.append('file', file);
+  try {
+    const res  = await fetch(`${API}/upload`, { method:'POST', body:fd });
+    const data = await res.json();
+    clearInterval(st); load.classList.remove('on');
+    if (data.error) { toast(data.error, true); return; }
+
+    allSections = data.sections || [];
+    allHeadings = data.headings || [];
+    selected    = [];
+
+    document.getElementById('fname').textContent = file.name;
+    document.getElementById('fmeta').textContent =
+      `${data.pages} page${data.pages!==1?'s':''} · ${allSections.length} sections detected`;
+    document.getElementById('fprev').classList.add('on');
+    document.getElementById('sec-panel').style.display = 'block';
+    document.getElementById('gen-wrap').style.display  = 'block';
+    renderSections(allSections);
+    toast(`✅ ${allSections.length} sections found`);
+  } catch(e) {
+    clearInterval(st); load.classList.remove('on');
+    toast('Upload failed — is server running on port 5050?', true);
+  }
+}
+
+function resetFile() {
+  document.getElementById('fprev').classList.remove('on');
+  document.getElementById('sec-panel').style.display = 'none';
+  document.getElementById('gen-wrap').style.display  = 'none';
+  document.getElementById('fi').value = '';
+  allSections = []; allHeadings = []; selected = [];
+}
+
+// ── Section list ─────────────────────────────────────────────────
+function hFor(t) { return allHeadings.find(h => h.text === t) || {}; }
+
+function renderSections(list) {
+  const el = document.getElementById('slist');
+  el.innerHTML = list.map((s) => {
+    const h  = hFor(s);
+    const lv = Math.min(h.level || 2, 4);
+    const gi = allSections.indexOf(s);
+    const isSel = selected.includes(s);
+    return `<div class="si ${isSel?'sel':''}" data-lv="${lv}" onclick="toggleSec('${esc(s)}',this)" title="${esc(s)}">
+      <span class="snum">${gi+1}</span>
+      <span class="slabel">${esc(s)}</span>
+      ${h.page ? `<span class="spg">p${h.page}</span>` : ''}
+    </div>`;
+  }).join('');
+  updateCount();
+}
+
+function toggleSec(name, el) {
+  const i = selected.indexOf(name);
+  if (i === -1) { selected.push(name); el.classList.add('sel'); }
+  else           { selected.splice(i,1); el.classList.remove('sel'); }
+  updateCount();
+}
+
+function updateCount() {
+  const n = selected.length;
+  document.getElementById('scount').textContent = n === 0 ? 'None selected' : `${n} selected`;
+  document.getElementById('sa-btn').textContent =
+    (n === allSections.length) ? 'Deselect All' : 'Select All';
+}
+
+function filterSections(q) {
+  renderSections(q ? allSections.filter(s => s.toLowerCase().includes(q.toLowerCase())) : allSections);
+}
+
+function toggleAll() {
+  selected = (selected.length === allSections.length) ? [] : [...allSections];
+  renderSections(allSections);
+}
+
+// ── Generate ─────────────────────────────────────────────────────
+async function generate() {
+  const topics = selected.length ? selected : allSections;
+  if (!topics.length) { toast('Please select at least one section.', true); return; }
+
+  const btn  = document.getElementById('gen-btn');
+  const wrap = document.getElementById('pbar-wrap');
+  const fill = document.getElementById('pbar-fill');
+  const txt  = document.getElementById('pbar-txt');
+
+  btn.disabled = true; btn.classList.add('busy');
+  wrap.style.display = 'block'; fill.style.width = '6%';
+  txt.textContent = `Generating for ${topics.length} topic${topics.length!==1?'s':''}…`;
+
+  let pct = 6;
+  const tick = setInterval(() => { pct = Math.min(pct + Math.random()*6, 88); fill.style.width = pct+'%'; }, 700);
+
+  try {
+    const res  = await fetch(`${API}/generate`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ topics })
+    });
+    const data = await res.json();
+    clearInterval(tick); fill.style.width = '100%';
+
+    if (!res.ok || data.error) { toast(data.error||'Generation failed.', true); return; }
+
+    const total = Object.values(data.flashcards).reduce((s,c)=>s+c.length, 0);
+    if (total === 0) { toast('No flashcards generated — check server logs.', true); return; }
+
+    // Persist everything viewer needs
+    sessionStorage.setItem('flashcards',  JSON.stringify(data.flashcards));
+    sessionStorage.setItem('genTopics',   JSON.stringify(data.topics));
+    sessionStorage.setItem('allSections', JSON.stringify(allSections));
+    sessionStorage.setItem('allHeadings', JSON.stringify(allHeadings));
+
+    if (data.partial) toast(`⚠ ${total} cards — some topics failed`);
+    else              toast(`🎉 ${total} flashcards ready!`);
+    setTimeout(() => { window.location.href = '/viewer'; }, 750);
+  } catch(e) {
+    clearInterval(tick);
+    toast('Network error — server running?', true);
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.classList.remove('busy');
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────────────
+function esc(s) {
+  return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")
+    .replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast' + (err?' err':'');
+  setTimeout(()=>t.classList.add('on'),10);
+  setTimeout(()=>t.classList.remove('on'),4200);
+}
+</script>
+</body>
+</html>
