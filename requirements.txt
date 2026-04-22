@@ -1,7 +1,7 @@
-flask==3.0.3
-flask-cors==4.0.1
-pymupdf==1.24.9
-requests==2.32.3
-beautifulsoup4==4.12.3
-groq==0.11.0
+flask
 gunicorn
+flask-cors
+pymupdf
+requests
+beautifulsoup4
+groq
